@@ -1,0 +1,6 @@
+An exception occurred during task execution. To see the full traceback, use -vvv. The error was: AnsibleFileNotFound: Could not find or access '/root/index.hmtl'
+54.88.0.48 | FAILED! => {
+    "changed": false, 
+    "failed": true, 
+    "msg": "Could not find or access '/root/index.hmtl'"
+}

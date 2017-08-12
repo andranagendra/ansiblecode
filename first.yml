@@ -1,0 +1,9 @@
+
+
+
+
+---
+ - hosts: all
+   tasks:
+    - name: simple echo coammd
+      command: /bin/df

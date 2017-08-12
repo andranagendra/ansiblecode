@@ -1,0 +1,4 @@
+- set_fact: pak_name=httpd
+- name: install apache 
+  yum: name=httpd state=installed
+
