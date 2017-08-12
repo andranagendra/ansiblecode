@@ -1,0 +1,221 @@
+we install git first:
+method 1
+
+To install ansible on centos 6 we have follow below commands:
+
+first we create  epel repository;
+
+sudo rpm -ivh http://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
+
+now we are install ansible by using below command: 
+
+
+yum install ansible -y
+
+
+yum install git
+
+
+git --version
+
+cd /opt
+
+to download the ansible package and install packge with out rpm:
+
+git clone git://github.com/ansible/ansible.git
+
+cd ansible 
+
+now we are run the ansible package:
+
+source ./hacking/env-setup
+
+ansible --version
+ansible 2.4.0 (devel 359ced3833) last updated 2017/08/12 10:37:52 (GMT +000)
+  config file = None
+  configured module search path = [u'/root/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /opt/ansible/lib/ansible
+  executable location = /opt/ansible/bin/ansible
+  python version = 2.7.12 (default, Sep  1 2016, 22:14:00) [GCC 4.8.3 20140911 (Red Hat 4.8.3-9)]
+
+now we are ganerate  ssh key on  host-machine by using bellow command:
+
+ ssh-keygen
+
+now we are getting two shh keys : 
+
+private key: id_rsa.
+public key: id_rsa.pub.
+
+now we copy public key:
+ cat /root/.ssh/id_rsa.pub
+
+<<now we are copy ssh>>
+
+ 
+remote machine:
+
+now we go to remote machine 
+now we paste ssh key on .ssh/au
+cd .ssh
+
+--->vi authorized_keys
+ to paste the ssh public key
+
+:wq!
+
+next step 1:
+
+vi /etc/ssh/sshd_config
+
+ open the pertmit root log in and password authentication:
+
+pertmit root log yes
+password authentication yes
+
+now creating playbooks:
+
+ansible files are saved in form of .yml or yaml (yet anyother markup language)
+
+vi file name.yml
+
+syntax of play book :
+
+
+---
+  - hosts: all 
+    tasks:
+      -name:
+       
+
+ansible commands:
+
+ansible all -a "/bin/echo hello"
+
+
+
+
+
+adhoc commands:
+
+ansible -i hosts all -m ping file -a "dest=/tmp/dockerfile mode=755 state=touch" <<error>>
+
+
+To create a file  by using ansible adhoc commands: 
+
+ansible -i hosts all -m  file -a "dest=/tmp/dockerfile mode=755 state=touch"
+ 
+output:
+
+54.88.0.48 | SUCCESS => {
+    "changed": true,
+    "dest": "/tmp/dockerfile",
+    "failed": false,
+    "gid": 0,
+    "group": "root",
+    "mode": "0755",
+    "owner": "root",
+    "size": 0,
+    "state": "file",
+    "uid": 0
+}
+
+
+ ansible -i hosts all -m  setup <<< To gather the remote machine information >>>
+
+
+error:
+
+[root@ip-172-31-21-48 ansible]# ansible -i 'local host' -c loacl  -m  ping setup
+ [WARNING]: Unable to parse /etc/ansible/local host as an inventory source
+
+ [WARNING]: No inventory was parsed, only implicit localhost is available
+
+ [WARNING]: Could not match supplied host pattern, ignoring: all
+
+ [WARNING]: provided hosts list is empty, only localhost is available
+
+ [WARNING]: Could not match supplied host pattern, ignoring: setup
+
+ [WARNING]: No hosts matched, nothing to do
+
+adhoc-commands:
+
+ansible-doc -s yum <<to check yum install package list >>
+
+ ansible-doc  -l |more -l << to list out no of modules list >>
+
+ ansible-doc  -l |wc -l < list out no of modules >
+
+out-put:
+ 
+1295
+
+
+ansible  -m ping all -o  <<to print the output on single line>>
+
+ ansible  -m   shell all -a 'uname -a' <to display remote machine kernal information>
+
+output:
+
+54.88.0.48 | SUCCESS | rc=0 >>
+Linux ip-172-31-24-238 4.9.32-15.41.amzn1.x86_64 #1 SMP Thu Jun 22 06:20:54 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
+
+
+[root@ip-172-31-21-48 ansible]#  ansible  -m   shell all -a 'df '
+output:
+
+54.88.0.48 | SUCCESS | rc=0 >>
+Filesystem     1K-blocks    Used Available Use% Mounted on
+devtmpfs          499756      56    499700   1% /dev
+tmpfs             508684       0    508684   0% /dev/shm
+/dev/xvda1       8123812 1001744   7021820  13% /
+
+[root@ip-172-31-21-48 ansible]#  ansible  -m   shell all -a 'df -h'
+
+output:
+
+54.88.0.48 | SUCCESS | rc=0 >>
+Filesystem      Size  Used Avail Use% Mounted on
+devtmpfs        489M   56K  488M   1% /dev
+tmpfs           497M     0  497M   0% /dev/shm
+/dev/xvda1      7.8G  979M  6.7G  13% /
+
+
+error:
+
+[root@ip-172-31-21-48 ansible]#  ansible  -m yum all -a "name=tree state=preset" h
+54.88.0.48 | FAILED! => {
+    "changed": false,
+    "failed": true,
+    "msg": "value of state must be one of: absent,present,installed,removed,latest, got: preset"
+}
+
+solution:
+
+[root@ip-172-31-21-48 ansible]#  ansible  -m yum all -a "name=tree state=present"
+54.88.0.48 | SUCCESS => {
+    "changed": true,
+    "failed": false,
+    "msg": "",
+    "rc": 0,
+    "results": [
+        "Loaded plugins: priorities, update-motd, upgrade-helper\nResolving Dependencies\n--> Running transaction check\n---> Package tree.x86_64 0:1.6.0-5.8.amzn1 will be installed\n--> Finished Dependency Resolution\n\nDependencies Resolved\n\n================================================================================\n Package      Arch           Version                    Repository         Size\n================================================================================\nInstalling:\n tree         x86_64         1.6.0-5.8.amzn1            amzn-main          48 k\n\nTransaction Summary\n================================================================================\nInstall  1 Package\n\nTotal download size: 48 k\nInstalled size: 82 k\nDownloading packages:\nRunning transaction check\nRunning transaction test\nTransaction test succeeded\nRunning transaction\n  Installing : tree-1.6.0-5.8.amzn1.x86_64                                  1/1 \n  Verifying  : tree-1.6.0-5.8.amzn1.x86_64                                  1/1 \n\nInstalled:\n  tree.x86_64 0:1.6.0-5.8.amzn1                                                 \n\nComplete!\n"
+    ]
+}
+
+ ansible  -m yum all -a "name=httpd state=present"
+
+
+error 3:
+
+[root@ip-172-31-21-48 ansible]#  ansible  -m service all -a "name=httpd state=start"
+54.88.0.48 | FAILED! => {
+    "changed": false,
+    "failed": true,
+    "msg": "value of state must be one of: running,started,stopped,restarted,reloaded, got: start"
+}
+
+soluton :
+ ansible  -m service all -a "name=httpd state=started"
+ ansible  -m copy all -a "src=/root/index.hmtl dest=/var/www/html"
